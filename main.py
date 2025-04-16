@@ -1,5 +1,6 @@
 import streamlit as st
-from langchain.agents import Tool, initialize_agent
+from langchain.agents import AgentType, initialize_agent
+from langchain_core.tools import StructuredTool
 from langchain.chat_models import ChatOpenAI
 from langchain.schema import SystemMessage, HumanMessage
 from dotenv import load_dotenv
@@ -9,9 +10,8 @@ import os
 
 load_dotenv()
 
-
-def get_current_time(_):
-    return datetime.now().strftime("%H:%M, %d %B %Y")
+def get_current_time() -> str:
+    return datetime.now().isoformat()
 
 api_key = os.getenv("OPENAI_API_KEY")
 
@@ -23,10 +23,10 @@ if user_question:
     llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 
     tools = [
-        Tool(
-            name="get_current_time",
+        StructuredTool.from_function(
             func=get_current_time,
-            description="Returns current time. Use when a user asks how many time"
+            name="get_current_time",
+            description="Returns the current time"
         )
     ]
 
@@ -34,7 +34,7 @@ if user_question:
         agent = initialize_agent(
             tools,
             llm,
-            agent="chat-zero-shot-react-description",
+            agent=AgentType.OPENAI_FUNCTIONS,
             verbose=True)
         response = agent.run(user_question)
         st.success("Answer:")
