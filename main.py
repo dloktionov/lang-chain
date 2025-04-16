@@ -1,8 +1,7 @@
 import streamlit as st
 from langchain.agents import AgentType, initialize_agent
 from langchain_core.tools import StructuredTool
-from langchain.chat_models import ChatOpenAI
-from langchain.schema import SystemMessage, HumanMessage
+from langchain_community.chat_models import ChatOpenAI
 from dotenv import load_dotenv
 from datetime import datetime
 
