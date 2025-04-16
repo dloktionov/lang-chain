@@ -4,6 +4,10 @@ from langchain_core.tools import StructuredTool
 from langchain_community.chat_models import ChatOpenAI
 from dotenv import load_dotenv
 from datetime import datetime, timezone
+from langchain.text_splitter import CharacterTextSplitter
+from langchain_openai import OpenAIEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain.chains.retrieval_qa.base import RetrievalQA
 
 import os
 
@@ -12,6 +16,20 @@ load_dotenv()
 def get_current_time() -> str:
     sTime = datetime.now(timezone.utc).isoformat()
     return sTime
+
+def rag_search(query: str)-> str:
+    with open("data.txt") as f:
+        raw_text = f.read()
+
+    splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+    texts = splitter.split_text(raw_text)
+
+    embeddings = OpenAIEmbeddings()
+    vectorstore = FAISS.from_texts(texts, embedding=embeddings)
+
+    qa = RetrievalQA.from_chain_type(llm=llm, retriever=vectorstore.as_retriever())
+    return qa.run(query)
+        
 
 api_key = os.getenv("OPENAI_API_KEY")
 
@@ -27,6 +45,11 @@ if user_question:
             func=get_current_time,
             name="get_current_time",
             description="Returns the current time in UTC timezone"
+        ),
+         StructuredTool.from_function(
+            func=rag_search,
+            name="rag_search",
+            description="Employee birthdays"
         )
     ]
 
