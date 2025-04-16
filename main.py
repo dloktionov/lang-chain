@@ -3,15 +3,14 @@ from langchain.agents import AgentType, initialize_agent
 from langchain_core.tools import StructuredTool
 from langchain_community.chat_models import ChatOpenAI
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, timezone
 
 import os
 
 load_dotenv()
 
 def get_current_time() -> str:
-    sTime = datetime.now().isoformat()
-    st.write(sTime)
+    sTime = datetime.now(timezone.utc).isoformat()
     return sTime
 
 api_key = os.getenv("OPENAI_API_KEY")
@@ -27,7 +26,7 @@ if user_question:
         StructuredTool.from_function(
             func=get_current_time,
             name="get_current_time",
-            description="Returns the current time"
+            description="Returns the current time in UTC timezone"
         )
     ]
 
