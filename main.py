@@ -10,7 +10,9 @@ import os
 load_dotenv()
 
 def get_current_time() -> str:
-    return datetime.now().isoformat()
+    sTime = datetime.now().isoformat()
+    st.write(sTime)
+    return sTime
 
 api_key = os.getenv("OPENAI_API_KEY")
 
